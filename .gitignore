@@ -1,0 +1,7 @@
+pyoauthbridge.egg-info
+venv
+build
+dist
+.idea
+.pyoauthbridge-library.iml
+.misc.xml

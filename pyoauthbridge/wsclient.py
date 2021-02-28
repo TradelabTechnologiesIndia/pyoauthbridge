@@ -8,7 +8,19 @@ from packetDecoder import decodeDetailedMarketData, decodeCompactMarketData, dec
 
 login_id = "",
 access_token = "",
-payload = {}
+payload = {},
+compact_marketdata_response = {},
+detailed_marketdata_response = {},
+snapquote_marketdata_response = {}
+
+def read_detailed_marketdata():
+    return detailed_marketdata_response
+
+def read_compact_marketdata():
+    return compact_marketdata_response
+
+def read_snapqotedata():
+    return snapquote_marketdata_response
 
 def heartbeat_thread(clientSocket):
     while clientSocket:
@@ -27,13 +39,16 @@ def on_message(ws, message):
     mode = struct.unpack('>b', message[0:1])[0]
     if mode == 1:
         res = decodeDetailedMarketData(message)
-        print(res)
+        global detailed_marketdata_response
+        detailed_marketdata_response = res
     elif mode == 2:
         res = decodeCompactMarketData(message)
-        print(res)
+        global compact_marketdata_response
+        compact_marketdata_response = res
     elif mode == 4:
         res = decodeSnapquoteData(message)
-        print(res)
+        global snapquote_marketdata_response
+        snapquote_marketdata_response = res
 
 def on_error(ws, error):
     print(error)
@@ -125,18 +140,13 @@ def connect(base_url):
 def webs_start(ws):
     ws.run_forever()
 
-def socket_connect(client_id, token, messagetype_string, payload_object, base_url):
-    url = ""
-    if "https" in base_url:
-        url = base_url.replace("https", "wss")
-    else:
-        url = base_url.replace("http", "ws")
+def socket_connect(client_id, token, messagetype_string, payload_object, websocket_url):
 
     global message_type
     global payload
     message_type = messagetype_string
     payload = payload_object
-    websock = connect(f'{url}/ws/v1/feeds?login_id={client_id}&access_token={token}')
+    websock = connect(f'{websocket_url}/ws/v1/feeds?login_id={client_id}&access_token={token}')
     # websock = connect('wss://cash.basanonline.com/ws/v1/feeds?login_id=NA003&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJibGFja2xpc3Rfa2V5IjoiTkEwMDM6YitsY2RyZDliTmljMUtsNlRhdkVMQSIsImNsaWVudF9pZCI6Ik5BMDAzIiwiY2xpZW50X3Rva2VuIjoiYURwbWhnNFpTZlhWS3VKN0JyQ1FJUSIsImRldmljZSI6IndlYiIsImV4cCI6MTYxMjkzNzc2ODU4NH0.0hRl8s881g52UFIgIZZHckDnMndoh1_xnNJf0XIFVGw')
     print(message_type)
     hbThread2 = threading.Thread(target=webs_start, args=(websock,))

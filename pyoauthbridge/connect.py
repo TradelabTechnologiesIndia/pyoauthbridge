@@ -1,7 +1,7 @@
 import requests
 import json
 from server import Server
-from wsclient import socket_connect
+from wsclient import socket_connect, read_compact_marketdata, read_detailed_marketdata, read_snapqotedata
 import sys
 
 cli = sys.modules['flask.cli']
@@ -15,6 +15,12 @@ class Connect:
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_url = redirect_url
+        url = ""
+        if "https" in base_url:
+            url = base_url.replace("https", "wss")
+        else:
+            url = base_url.replace("http", "ws")
+        self.websocket_url = url
 
     def get_access_token(self):
         base_url = self.base_url
@@ -237,7 +243,20 @@ class Connect:
         client_id = self.client_id
         access_token = self.access_token
         base_url = self.base_url
-        socket_connect(client_id, access_token, message_type, payload, base_url)
+        socket_connect(client_id, access_token, message_type, payload, websocket_url)
+
+    def subscribe_detailed_marketdata():
+        data = read_detailed_marketdata()
+        return data
+
+    def subscribe_compact_marketdata():
+        data = read_compact_marketdata()
+        return data
+
+    def subscribe_snapquote_data():
+        data = read_snapqotedata()
+        return data
+
 
 #------------------------------------------------
 #For testing

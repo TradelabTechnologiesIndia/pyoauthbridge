@@ -150,15 +150,8 @@ def webs_start(ws):
 
 def socket_connect(client_id, token, websocket_url):
 
-    # global message_type
-    # global payload
-    # message_type = messagetype_string
-    # payload = payload_object
     global websock
     websock = connect(f'{websocket_url}/ws/v1/feeds?login_id={client_id}&access_token={token}')
-    print("wsclient websocket ---")
-    print(websock)
-    # websock = connect('wss://cash.basanonline.com/ws/v1/feeds?login_id=NA003&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJibGFja2xpc3Rfa2V5IjoiTkEwMDM6YitsY2RyZDliTmljMUtsNlRhdkVMQSIsImNsaWVudF9pZCI6Ik5BMDAzIiwiY2xpZW50X3Rva2VuIjoiYURwbWhnNFpTZlhWS3VKN0JyQ1FJUSIsImRldmljZSI6IndlYiIsImV4cCI6MTYxMjkzNzc2ODU4NH0.0hRl8s881g52UFIgIZZHckDnMndoh1_xnNJf0XIFVGw')
     # print(message_type)
     hbThread2 = threading.Thread(target=webs_start, args=(websock,))
     hbThread2.run()

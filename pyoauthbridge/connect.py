@@ -1,7 +1,8 @@
 import requests
 import json
 from server import Server
-from wsclient import socket_connect, read_compact_marketdata, read_detailed_marketdata, read_snapqotedata
+from threading import Thread 
+from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message
 import sys
 
 cli = sys.modules['flask.cli']
@@ -239,22 +240,36 @@ class Connect:
         res = self.put_request(f'/api/v1/alerts', data)
         return res
 
-    def run_socket(self, message_type, payload):
+    def run_socket(self):
         client_id = self.client_id
         access_token = self.access_token
-        base_url = self.base_url
-        socket_connect(client_id, access_token, message_type, payload, websocket_url)
+        websocket_url = self.websocket_url
+        th_websocket = Thread(target=socket_connect, args=(client_id, access_token, websocket_url,))
+        th_websocket.start()
+        # socket_connect(client_id, access_token, websocket_url)
 
-    def subscribe_detailed_marketdata():
-        data = read_detailed_marketdata()
+    def subscribe_detailed_marketdata(self, detailedmarketdata_payload):
+        th_detailed_marketdata = Thread(target=send_message, args=('DetailedMarketDataMessage', detailedmarketdata_payload))
+        th_detailed_marketdata.start()
+
+    def read_detailed_marketdata(self):
+        data = get_detailed_marketdata()
         return data
 
-    def subscribe_compact_marketdata():
-        data = read_compact_marketdata()
+    def subscribe_compact_marketdata(self, compactmarketdata_payload):
+        th_compact_marketdata = Thread(target=send_message, args=('CompactMarketDataMessage', compactmarketdata_payload))
+        th_compact_marketdata.start()
+    
+    def read_compact_marketdata(self):
+        data = get_compact_marketdata()
         return data
 
-    def subscribe_snapquote_data():
-        data = read_snapqotedata()
+    def subscribe_snapquote_data(self, snapquotedata_payload):
+        th_snapquote = Thread(target=send_message, args=('SnapquoteDataMessage', snapquotedata_payload))
+        th_snapquote.start()
+
+    def read_snapquote_data(self):
+        data = get_snapquotedata()
         return data
 
 

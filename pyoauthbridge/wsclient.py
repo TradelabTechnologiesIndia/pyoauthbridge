@@ -9,17 +9,18 @@ from packetDecoder import decodeDetailedMarketData, decodeCompactMarketData, dec
 login_id = "",
 access_token = "",
 payload = {},
+websock = {},
 compact_marketdata_response = {},
 detailed_marketdata_response = {},
 snapquote_marketdata_response = {}
 
-def read_detailed_marketdata():
+def get_detailed_marketdata():
     return detailed_marketdata_response
 
-def read_compact_marketdata():
+def get_compact_marketdata():
     return compact_marketdata_response
 
-def read_snapqotedata():
+def get_snapquotedata():
     return snapquote_marketdata_response
 
 def heartbeat_thread(clientSocket):
@@ -39,6 +40,8 @@ def on_message(ws, message):
     mode = struct.unpack('>b', message[0:1])[0]
     if mode == 1:
         res = decodeDetailedMarketData(message)
+        # print("detailed market data")
+        # print(res)
         global detailed_marketdata_response
         detailed_marketdata_response = res
     elif mode == 2:
@@ -47,6 +50,8 @@ def on_message(ws, message):
         compact_marketdata_response = res
     elif mode == 4:
         res = decodeSnapquoteData(message)
+        # print("snap quote data")
+        # print(res)
         global snapquote_marketdata_response
         snapquote_marketdata_response = res
 
@@ -63,13 +68,16 @@ def on_open(ws):
     hbThread = threading.Thread(target=heartbeat_thread, args=(ws,))
     hbThread.start()
 
-    hbThread1 = threading.Thread(target=send_message, args=(ws,))
-    hbThread1.start()
+    # hbThread1 = threading.Thread(target=send_message, args=(ws,))
+    # hbThread1.start()
 
 
 
-def send_message(clientSocket):
+def send_message(message_type, payload):
     # print(message_type)
+    global websock
+    clientSocket = websock
+    print(clientSocket)
     if message_type == "DetailedMarketDataMessage":
         sub_packet = {
             "a": "subscribe",
@@ -140,15 +148,18 @@ def connect(base_url):
 def webs_start(ws):
     ws.run_forever()
 
-def socket_connect(client_id, token, messagetype_string, payload_object, websocket_url):
+def socket_connect(client_id, token, websocket_url):
 
-    global message_type
-    global payload
-    message_type = messagetype_string
-    payload = payload_object
+    # global message_type
+    # global payload
+    # message_type = messagetype_string
+    # payload = payload_object
+    global websock
     websock = connect(f'{websocket_url}/ws/v1/feeds?login_id={client_id}&access_token={token}')
+    print("wsclient websocket ---")
+    print(websock)
     # websock = connect('wss://cash.basanonline.com/ws/v1/feeds?login_id=NA003&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJibGFja2xpc3Rfa2V5IjoiTkEwMDM6YitsY2RyZDliTmljMUtsNlRhdkVMQSIsImNsaWVudF9pZCI6Ik5BMDAzIiwiY2xpZW50X3Rva2VuIjoiYURwbWhnNFpTZlhWS3VKN0JyQ1FJUSIsImRldmljZSI6IndlYiIsImV4cCI6MTYxMjkzNzc2ODU4NH0.0hRl8s881g52UFIgIZZHckDnMndoh1_xnNJf0XIFVGw')
-    print(message_type)
+    # print(message_type)
     hbThread2 = threading.Thread(target=webs_start, args=(websock,))
     hbThread2.run()
     hbThread2.isAlive()

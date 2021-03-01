@@ -2,8 +2,9 @@ import requests
 import json
 from server import Server
 from threading import Thread 
-from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message
+from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status
 import sys
+import time
 
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
@@ -246,6 +247,15 @@ class Connect:
         websocket_url = self.websocket_url
         th_websocket = Thread(target=socket_connect, args=(client_id, access_token, websocket_url,))
         th_websocket.start()
+        counter = 0
+        while True:
+            status = get_ws_connection_status()
+            if status == True:
+                return True
+            time.sleep(1)
+            counter = counter + 1
+            if counter > 5:
+                return False
         # socket_connect(client_id, access_token, websocket_url)
 
     def subscribe_detailed_marketdata(self, detailedmarketdata_payload):

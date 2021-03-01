@@ -10,6 +10,7 @@ login_id = "",
 access_token = "",
 payload = {},
 websock = {},
+ws_connected = False,
 compact_marketdata_response = {},
 detailed_marketdata_response = {},
 snapquote_marketdata_response = {}
@@ -22,6 +23,9 @@ def get_compact_marketdata():
 
 def get_snapquotedata():
     return snapquote_marketdata_response
+
+def get_ws_connection_status():
+    return ws_connected
 
 def heartbeat_thread(clientSocket):
     while clientSocket:
@@ -57,16 +61,22 @@ def on_message(ws, message):
 
 def on_error(ws, error):
     print(error)
+    global ws_connected
+    ws_connected = False
 
 
 def on_close(ws):
     print("### closed ###")
+    global ws_connected
+    ws_connected = False
 
 
 def on_open(ws):
 
     hbThread = threading.Thread(target=heartbeat_thread, args=(ws,))
     hbThread.start()
+    global ws_connected
+    ws_connected = True
 
     # hbThread1 = threading.Thread(target=send_message, args=(ws,))
     # hbThread1.start()

@@ -32,9 +32,10 @@ if __name__ == '__main__':
   marketdata_payload = {'exchangeCode': 1, 'instrumentToken': 3045}
   snapquotedata_payload = {'exchangeCode': 4, 'instrumentToken': 226027}
 
-  conn.run_socket()
-  time.sleep(3)
+  ws_status = conn.run_socket()
+
   print("websocket connected ...")
+  print(ws_status)
   conn.subscribe_detailed_marketdata(marketdata_payload,)
   conn.subscribe_snapquote_data(snapquotedata_payload,)
 

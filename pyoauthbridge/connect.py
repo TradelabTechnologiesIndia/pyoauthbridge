@@ -119,7 +119,8 @@ class Connect:
             'client_id': payload['client_id'],
             'execution_type': payload['execution_type']
         }
-        res = self.delete_request(f'/api/v1/orders/{payload.oms_order_id}', params)
+        oms_order_id = payload['oms_order_id']
+        res = self.delete_request(f'/api/v1/orders/{oms_order_id}', params)
         return res
 
     def fetch_scripinfo(self, payload):
@@ -127,7 +128,8 @@ class Connect:
             'info': 'scrip',
             'token': payload['token']
         }
-        res = self.get_request(f'/api/v1/contract/NSE', params)
+        exchange = payload["exchange"]
+        res = self.get_request(f'/api/v1/contract/{exchange}', params)
         return res
 
     def search_scrip(self, payload):

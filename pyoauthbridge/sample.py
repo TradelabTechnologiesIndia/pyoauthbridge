@@ -30,7 +30,7 @@ if __name__ == '__main__':
   print(access_token)
 
   marketdata_payload = {'exchangeCode': 1, 'instrumentToken': 3045}
-  snapquotedata_payload = {'exchangeCode': 4, 'instrumentToken': 226027}
+  snapquotedata_payload = {'exchangeCode': 1, 'instrumentToken': 3045}
 
   ws_status = conn.run_socket()
 
@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
   print("channels subscribed ....")
 
+  i = 0
   while True:
     time.sleep(1)
     detailed_market_data = conn.read_detailed_marketdata()
@@ -48,4 +49,11 @@ if __name__ == '__main__':
     time.sleep(1)
     snapquote_data = conn.read_snapquote_data()
     print(detailed_market_data)
+    i = i + 1
+    print("==================================")
+    if i > 5:
+      print("unsubscribe marketdata")
+      conn.unsubscribe_detailed_marketdata(marketdata_payload)
+      print("unsubscribe snapquote")
+      conn.unsubscribe_detailed_marketdata(snapquotedata_payload)
     

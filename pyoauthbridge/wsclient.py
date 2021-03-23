@@ -81,7 +81,36 @@ def on_open(ws):
     # hbThread1 = threading.Thread(target=send_message, args=(ws,))
     # hbThread1.start()
 
-
+def unsubscribe_update(message_type, payload):
+    global websock
+    clientSocket = websock
+    if message_type == "DetailedMarketDataMessage":
+        sub_packet = {
+            "a": "unsubscribe",
+            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "m": "marketdata"
+        }
+        clientSocket.send(json.dumps(sub_packet))
+        global detailed_marketdata_response
+        detailed_marketdata_response = {}
+    elif message_type == "CompactMarketDataMessage":
+        sub_packet = {
+            "a": "unsubscribe",
+            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "m": "compact_marketdata"
+        }
+        clientSocket.send(json.dumps(sub_packet))
+        global compact_marketdata_response
+        compact_marketdata_response = {}
+    elif message_type == "SnapquoteDataMessage":
+        sub_packet = {
+            "a": "unsubscribe",
+            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "m": "full_snapquote"
+        }
+        clientSocket.send(json.dumps(sub_packet))
+        global snapquote_marketdata_response
+        snapquote_marketdata_response = {}
 
 def send_message(message_type, payload):
     # print(message_type)

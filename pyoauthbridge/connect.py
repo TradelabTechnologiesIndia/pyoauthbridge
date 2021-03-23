@@ -2,7 +2,7 @@ import requests
 import json
 from server import Server
 from threading import Thread 
-from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status
+from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status, unsubscribe_update
 import sys
 import time
 
@@ -268,8 +268,16 @@ class Connect:
         data = get_detailed_marketdata()
         return data
 
+    def unsubscribe_detailed_marketdata(self, detailedmarketdata_payload):
+        th_detailed_marketdata = Thread(target=unsubscribe_update, args=('DetailedMarketDataMessage', detailedmarketdata_payload))
+        th_detailed_marketdata.start()
+
     def subscribe_compact_marketdata(self, compactmarketdata_payload):
         th_compact_marketdata = Thread(target=send_message, args=('CompactMarketDataMessage', compactmarketdata_payload))
+        th_compact_marketdata.start()
+
+    def unsubscribe_compact_marketdata(self, compactmarketdata_payload):
+        th_compact_marketdata = Thread(target=unsubscribe_update, args=('CompactMarketDataMessage', compactmarketdata_payload))
         th_compact_marketdata.start()
     
     def read_compact_marketdata(self):
@@ -278,6 +286,10 @@ class Connect:
 
     def subscribe_snapquote_data(self, snapquotedata_payload):
         th_snapquote = Thread(target=send_message, args=('SnapquoteDataMessage', snapquotedata_payload))
+        th_snapquote.start()
+    
+    def unsubscribe_snapquote_data(self, snapquotedata_payload):
+        th_snapquote = Thread(target=unsubscribe_update, args=('SnapquoteDataMessage', snapquotedata_payload))
         th_snapquote.start()
 
     def read_snapquote_data(self):

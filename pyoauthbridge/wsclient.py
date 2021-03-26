@@ -6,13 +6,13 @@ from struct import pack_into
 import ctypes, struct
 from packetDecoder import decodeDetailedMarketData, decodeCompactMarketData, decodeSnapquoteData
 
-login_id = "",
-access_token = "",
-payload = {},
-websock = {},
-ws_connected = False,
-compact_marketdata_response = {},
-detailed_marketdata_response = {},
+login_id = ""
+access_token = ""
+payload = {}
+websock = {}
+ws_connected = False
+compact_marketdata_response = {}
+detailed_marketdata_response = {}
 snapquote_marketdata_response = {}
 
 def get_detailed_marketdata():

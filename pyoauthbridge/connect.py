@@ -166,7 +166,8 @@ class Connect:
         params = {
             'client_id': payload['client_id']
         }
-        res = self.get_request(f'/api/v1/order/{payload.oms_order_id}/history', params)
+        oms_order_id = payload['oms_order_id']
+        res = self.get_request(f'/api/v1/order/{oms_order_id}/history', params)
         return res
 
     def fetch_live_positions(self, payload):

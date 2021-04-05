@@ -139,6 +139,34 @@ class Connect:
         res = self.get_request(f'/api/v1/search', params)
         return res
 
+    def fetch_scrip_price(self, payload):
+        params = {}
+        exchange = payload['exchange']
+        token = payload['token']
+        if exchange == 'NSE':
+            ltp_res = self.get_request(f'/api/v1/marketdata/NSE/Capital?token={token}&key=last_trade_price', params)
+            close_price_res = self.get_request(f'/api/v1/marketdata/NSE/Capital?token={token}&key=close_price', params)
+        elif exchange == 'BSE':
+            ltp_res = self.get_request(f'/api/v1/marketdata/BSE/Capital?token={token}&key=last_trade_price', params)
+            close_price_res = self.get_request(f'/api/v1/marketdata/BSE/Capital?token={token}&key=close_price', params)
+        elif exchange == 'NFO':
+            ltp_res = self.get_request(f'/api/v1/marketdata/NSE/FutOpt?token={token}&key=last_trade_price', params)
+            close_price_res = self.get_request(f'/api/v1/marketdata/NSE/FutOpt?token={token}&key=close_price', params)
+        elif exchange == 'CDS':
+            ltp_res = self.get_request(f'/api/v1/marketdata/NSE/Currency?token={token}&key=last_trade_price', params)
+            close_price_res = self.get_request(f'/api/v1/marketdata/NSE/Currency?token={token}&key=close_price', params)
+        elif exchange == 'MCX':
+            ltp_res = self.get_request(f'/api/v1/marketdata/MCX/FutOpt?token={token}&key=last_trade_price', params)
+            close_price_res = self.get_request(f'/api/v1/marketdata/MCX/FutOpt?token={token}&key=close_price', params)
+        else:
+            ltp_res = {"data": 0, "message": "Exchange is ---- invalid", "status": "error"}
+            close_price_res = {"data": 0, "message": "Exchange is invalid", "status": "error"}
+        if (ltp_res["status"] == "error" or close_price_res["status"] == "error"):
+            res = {"last_traded_price": 0, "close_price": 0, "status": "error", "message": ltp_res['message']}
+        else:
+            res = {"last_traded_price": ltp_res['data'], "close_price": close_price_res['data'], "status": "success", "message": ""}
+        return res
+
     def fetch_pending_orders(self, payload):
         params = {
             'type': 'pending',

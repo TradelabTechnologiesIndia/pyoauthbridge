@@ -56,11 +56,23 @@ print(res)
 
 ```sh
 
+# To connect to websocket
+ws_status = conn.run_socket()
+
 # To subscribe to Detailed Market Data Message
-conn.run_socket("DetailedMarketDataMessage", {'exchangeCode': 4, 'instrumentToken': 226027})
+conn.subscribe_detailed_marketdata({'exchangeCode': 4, 'instrumentToken': 226027})
 
 # To subscribe to Compact Market Data 
-conn.run_socket("CompactMarketDataMessage", {'exchangeCode': 4, 'instrumentToken': 226027})
+conn.subscribe_compact_marketdata({'exchangeCode': 4, 'instrumentToken': 226027})
 
-#To subscribe to Snapquote Data 
-conn.run_socket("SnapquoteDataMessage", {'exchangeCode': 4, 'instrumentToken': 226027})
+# To subscribe to Snapquote Data 
+conn.subscribe_snapquote_data({'exchangeCode': 4, 'instrumentToken': 226027})
+
+# To read/listen to Detailed Market Data
+detailed_market_data = conn.read_detailed_marketdata()
+
+# To read/listen to Compact Market Data
+compact_market_data = conn.read_compact_marketdata()
+
+# To read/listen to Snapquote Data
+snapquote_data = conn.read_snapquote_data()

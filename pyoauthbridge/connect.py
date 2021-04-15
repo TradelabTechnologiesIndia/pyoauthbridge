@@ -2,7 +2,7 @@ import requests
 import json
 from server import Server
 from threading import Thread 
-from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status, unsubscribe_update
+from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status, unsubscribe_update, get_order_update
 import sys
 import time
 
@@ -323,6 +323,18 @@ class Connect:
 
     def read_snapquote_data(self):
         data = get_snapquotedata()
+        return data
+
+    def subscribe_order_update(self, orderupdate_payload):
+        th_order_update = Thread(target=send_message, args=('OrderUpdateMessage', orderupdate_payload))
+        th_order_update.start()
+    
+    def unsubscribe_order_update(self, orderupdate_payload):
+        th_order_update = Thread(target=unsubscribe_update, args=('OrderUpdateMessage', orderupdate_payload))
+        th_order_update.start()
+
+    def read_order_update_data(self):
+        data = get_order_update()
         return data
 
 

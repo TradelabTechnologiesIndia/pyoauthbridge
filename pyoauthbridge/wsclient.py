@@ -4,7 +4,7 @@ import json
 import time
 from struct import pack_into
 import ctypes, struct
-from packetDecoder import decodeDetailedMarketData, decodeCompactMarketData, decodeSnapquoteData
+from packetDecoder import decodeDetailedMarketData, decodeCompactMarketData, decodeSnapquoteData, decodeOrderUpdate
 
 login_id = ""
 access_token = ""
@@ -14,6 +14,7 @@ ws_connected = False
 compact_marketdata_response = {}
 detailed_marketdata_response = {}
 snapquote_marketdata_response = {}
+order_update_response = {}
 
 def get_detailed_marketdata():
     return detailed_marketdata_response
@@ -23,6 +24,9 @@ def get_compact_marketdata():
 
 def get_snapquotedata():
     return snapquote_marketdata_response
+
+def get_order_update():
+    return order_update_response
 
 def get_ws_connection_status():
     return ws_connected
@@ -58,6 +62,10 @@ def on_message(ws, message):
         # print(res)
         global snapquote_marketdata_response
         snapquote_marketdata_response = res
+    elif mode == 50:
+        res = decodeOrderUpdate(message)
+        global order_update_response
+        order_update_response = res
 
 def on_error(ws, error):
     print(error)
@@ -145,13 +153,12 @@ def send_message(message_type, payload):
             "m": "tbt_full_snapquote"
         }
         clientSocket.send(json.dumps(sub_packet))
-    elif message_type == "OrderUpdate":
+    elif message_type == "OrderUpdateMessage":
         sub_packet = {
             "a": "subscribe",
             "v": [payload['client_id'], "web"],
             "m": "updates"
         }
-        print(sub_packet)
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "TradeUpdate": 
         sub_packet = {

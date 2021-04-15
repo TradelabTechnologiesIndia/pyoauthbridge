@@ -1,4 +1,4 @@
-import ctypes, struct
+import ctypes, struct, json
 from struct import pack_into
 
 def decodeDetailedMarketData(packet_buffer):
@@ -102,3 +102,8 @@ def decodeSnapquoteData(packet_buffer):
     "totalSellQty": struct.unpack('>Q', packet_buffer[154:162])[0],
     "volume" : struct.unpack('>I', packet_buffer[162:166])[0],
   }
+
+def decodeOrderUpdate(packet_buffer):
+  order_update_packet = packet_buffer.decode("utf-8")
+  order_update_obj = json.loads(order_update_packet[5:])
+  return order_update_obj

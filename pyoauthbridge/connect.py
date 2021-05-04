@@ -17,6 +17,9 @@ class Connect:
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_url = redirect_url
+        redirect_url_split = redirect_url.split(":")
+        if (int(redirect_url_split[2])) :
+            self.port = int(redirect_url_split[2])
         url = ""
         if "https" in base_url:
             url = base_url.replace("https", "wss")
@@ -32,8 +35,8 @@ class Connect:
         server = Server(client_id, client_secret, redirect_url, base_url)
         app = server.create_app()
         app.env = 'development'
-        print('Open this url in browser:', 'http://127.0.0.1:65010/getcode', end='\n\n')
-        app.run(host='127.0.0.1', debug=False, port=65010)
+        print('Open this url in browser:', 'http://127.0.0.1:' + str(self.port) + '/getcode', end='\n\n')
+        app.run(host='127.0.0.1', debug=False, port=self.port)
         access_token = server.fetch_access_token()
         self.access_token = access_token
         return server.fetch_access_token()

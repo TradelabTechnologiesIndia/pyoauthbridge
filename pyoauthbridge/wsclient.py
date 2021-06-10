@@ -15,6 +15,9 @@ compact_marketdata_response = {}
 detailed_marketdata_response = {}
 snapquote_marketdata_response = {}
 order_update_response = {}
+dtlmktdata_dict = {}
+cmptmktdata_dict = {}
+snpqtdata_dict = {}
 
 def get_detailed_marketdata():
     return detailed_marketdata_response
@@ -24,6 +27,15 @@ def get_compact_marketdata():
 
 def get_snapquotedata():
     return snapquote_marketdata_response
+
+def get_multiple_detailed_marketdata():
+    return dtlmktdata_dict
+
+def get_multiple_compact_marketdata():
+    return cmptmktdata_dict
+
+def get_multiple_snapquotedata():
+    return snpqtdata_dict
 
 def get_order_update():
     return order_update_response
@@ -51,17 +63,32 @@ def on_message(ws, message):
         # print("detailed market data")
         # print(res)
         global detailed_marketdata_response
+        global dtlmktdata_dict
         detailed_marketdata_response = res
+        if bool(res):
+            key = str(res["instrument_token"]) + "_" + str(res["exchange_code"])
+            # print(key)
+            dtlmktdata_dict[key] = res 
     elif mode == 2:
         res = decodeCompactMarketData(message)
         global compact_marketdata_response
+        global cmptmktdata_dict
         compact_marketdata_response = res
+        if bool(res):
+            key = str(res["instrument_token"]) + "_" + str(res["exchange_code"])
+            # print(key)
+            cmptmktdata_dict[key] = res 
     elif mode == 4:
         res = decodeSnapquoteData(message)
         # print("snap quote data")
         # print(res)
         global snapquote_marketdata_response
+        global snpqtdata_dict
         snapquote_marketdata_response = res
+        if bool(res):
+            key = str(res["instrument_token"]) + "_" + str(res["exchange_code"])
+            # print(key)
+            snpqtdata_dict[key] = res 
     elif mode == 50:
         res = decodeOrderUpdate(message)
         global order_update_response
@@ -95,30 +122,36 @@ def unsubscribe_update(message_type, payload):
     if message_type == "DetailedMarketDataMessage":
         sub_packet = {
             "a": "unsubscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "marketdata"
         }
         clientSocket.send(json.dumps(sub_packet))
         global detailed_marketdata_response
+        global dtlmktdata_dict
         detailed_marketdata_response = {}
+        dtlmktdata_dict = {}
     elif message_type == "CompactMarketDataMessage":
         sub_packet = {
             "a": "unsubscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "compact_marketdata"
         }
         clientSocket.send(json.dumps(sub_packet))
         global compact_marketdata_response
+        global cmptmktdata_dict
         compact_marketdata_response = {}
+        cmptmktdata_dict = {}
     elif message_type == "SnapquoteDataMessage":
         sub_packet = {
             "a": "unsubscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "full_snapquote"
         }
         clientSocket.send(json.dumps(sub_packet))
         global snapquote_marketdata_response
+        global snpqtdata_dict
         snapquote_marketdata_response = {}
+        snpqtdata_dict = {}
 
 def send_message(message_type, payload):
     # print(message_type)
@@ -128,56 +161,56 @@ def send_message(message_type, payload):
     if message_type == "DetailedMarketDataMessage":
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "marketdata"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "CompactMarketDataMessage":
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "compact_marketdata"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "SnapquoteDataMessage":
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "full_snapquote"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "TbtSnapquoteDataMessage":
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['exchangeCode'], payload['instrumentToken']]],
+            "v": payload,
             "m": "tbt_full_snapquote"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "OrderUpdateMessage":
         sub_packet = {
             "a": "subscribe",
-            "v": [payload['client_id'], "web"],
+            "v": payload,
             "m": "updates"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "TradeUpdate": 
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['client_id'], "web"]],
+            "v": payload,
             "m": "updates"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "ExchangeMessage": 
         sub_packet = {
             "a": "subscribe",
-            "v": [payload['client_id']],
+            "v": payload,
             "m": "exchange_messages"
         }
         clientSocket.send(json.dumps(sub_packet))
     elif message_type == "PositionUpdate":
         sub_packet = {
             "a": "subscribe",
-            "v": [[payload['client_id'], "web"]],
+            "v": payload,
             "m": "position_updates"
         }
         clientSocket.send(json.dumps(sub_packet))

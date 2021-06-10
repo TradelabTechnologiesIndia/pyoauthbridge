@@ -2,7 +2,7 @@ import requests
 import json
 from server import Server
 from threading import Thread 
-from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status, unsubscribe_update, get_order_update
+from wsclient import socket_connect, get_compact_marketdata, get_detailed_marketdata, get_snapquotedata, send_message, get_ws_connection_status, unsubscribe_update, get_order_update, get_multiple_detailed_marketdata, get_multiple_compact_marketdata, get_multiple_snapquotedata
 import sys
 import time
 
@@ -293,7 +293,8 @@ class Connect:
         # socket_connect(client_id, access_token, websocket_url)
 
     def subscribe_detailed_marketdata(self, detailedmarketdata_payload):
-        th_detailed_marketdata = Thread(target=send_message, args=('DetailedMarketDataMessage', detailedmarketdata_payload))
+        subscription_pkt = [[detailedmarketdata_payload['exchangeCode'], detailedmarketdata_payload['instrumentToken']]]
+        th_detailed_marketdata = Thread(target=send_message, args=('DetailedMarketDataMessage', subscription_pkt))
         th_detailed_marketdata.start()
 
     def read_detailed_marketdata(self):
@@ -301,15 +302,18 @@ class Connect:
         return data
 
     def unsubscribe_detailed_marketdata(self, detailedmarketdata_payload):
-        th_detailed_marketdata = Thread(target=unsubscribe_update, args=('DetailedMarketDataMessage', detailedmarketdata_payload))
+        unsubscription_pkt = [[detailedmarketdata_payload['exchangeCode'], detailedmarketdata_payload['instrumentToken']]]
+        th_detailed_marketdata = Thread(target=unsubscribe_update, args=('DetailedMarketDataMessage', unsubscription_pkt))
         th_detailed_marketdata.start()
 
     def subscribe_compact_marketdata(self, compactmarketdata_payload):
-        th_compact_marketdata = Thread(target=send_message, args=('CompactMarketDataMessage', compactmarketdata_payload))
+        subscription_pkt = [[compactmarketdata_payload['exchangeCode'], compactmarketdata_payload['instrumentToken']]]
+        th_compact_marketdata = Thread(target=send_message, args=('CompactMarketDataMessage', subscription_pkt))
         th_compact_marketdata.start()
 
     def unsubscribe_compact_marketdata(self, compactmarketdata_payload):
-        th_compact_marketdata = Thread(target=unsubscribe_update, args=('CompactMarketDataMessage', compactmarketdata_payload))
+        unsubscription_pkt = [[compactmarketdata_payload['exchangeCode'], compactmarketdata_payload['instrumentToken']]]
+        th_compact_marketdata = Thread(target=unsubscribe_update, args=('CompactMarketDataMessage', unsubscription_pkt))
         th_compact_marketdata.start()
     
     def read_compact_marketdata(self):
@@ -317,11 +321,13 @@ class Connect:
         return data
 
     def subscribe_snapquote_data(self, snapquotedata_payload):
-        th_snapquote = Thread(target=send_message, args=('SnapquoteDataMessage', snapquotedata_payload))
+        subscription_pkt = [[snapquotedata_payload['exchangeCode'], snapquotedata_payload['instrumentToken']]]
+        th_snapquote = Thread(target=send_message, args=('SnapquoteDataMessage', subscription_pkt))
         th_snapquote.start()
     
     def unsubscribe_snapquote_data(self, snapquotedata_payload):
-        th_snapquote = Thread(target=unsubscribe_update, args=('SnapquoteDataMessage', snapquotedata_payload))
+        unsubscription_pkt = [[snapquotedata_payload['exchangeCode'], snapquotedata_payload['instrumentToken']]]
+        th_snapquote = Thread(target=unsubscribe_update, args=('SnapquoteDataMessage', unsubscription_pkt))
         th_snapquote.start()
 
     def read_snapquote_data(self):
@@ -329,15 +335,77 @@ class Connect:
         return data
 
     def subscribe_order_update(self, orderupdate_payload):
-        th_order_update = Thread(target=send_message, args=('OrderUpdateMessage', orderupdate_payload))
+        subscription_pkt = [orderupdate_payload['client_id'], "web"]
+        th_order_update = Thread(target=send_message, args=('OrderUpdateMessage', subscription_pkt))
         th_order_update.start()
     
     def unsubscribe_order_update(self, orderupdate_payload):
-        th_order_update = Thread(target=unsubscribe_update, args=('OrderUpdateMessage', orderupdate_payload))
+        unsubscription_pkt = [orderupdate_payload['client_id'], "web"]
+        th_order_update = Thread(target=unsubscribe_update, args=('OrderUpdateMessage', unsubscription_pkt))
         th_order_update.start()
 
     def read_order_update_data(self):
         data = get_order_update()
+        return data
+
+    def subscribe_multiple_detailed_marketdata(self, detailedmarketdata_payload):
+        subscription_pkt = []
+        for payload in detailedmarketdata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            subscription_pkt.append(pkt)
+        th_detailed_marketdata = Thread(target=send_message, args=('DetailedMarketDataMessage', subscription_pkt))
+        th_detailed_marketdata.start()
+
+    def unsubscribe_multiple_detailed_marketdata(self, detailedmarketdata_payload):
+        unsubscription_pkt = []
+        for payload in detailedmarketdata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            unsubscription_pkt.append(pkt)
+        th_detailed_marketdata = Thread(target=unsubscribe_update, args=('DetailedMarketDataMessage', unsubscription_pkt))
+        th_detailed_marketdata.start()
+
+    def read_multiple_detailed_marketdata(self):
+        data = get_multiple_detailed_marketdata()
+        return data
+
+    def subscribe_multiple_compact_marketdata(self, compactmarketdata_payload):
+        subscription_pkt = []
+        for payload in compactmarketdata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            subscription_pkt.append(pkt)
+        th_compact_marketdata = Thread(target=send_message, args=('CompactMarketDataMessage', subscription_pkt))
+        th_compact_marketdata.start()
+
+    def unsubscribe_multiple_compact_marketdata(self, compactmarketdata_payload):
+        unsubscription_pkt = []
+        for payload in compactmarketdata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            unsubscription_pkt.append(pkt)
+        th_compact_marketdata = Thread(target=unsubscribe_update, args=('CompactMarketDataMessage', unsubscription_pkt))
+        th_compact_marketdata.start()
+
+    def read_multiple_compact_marketdata(self):
+        data = get_multiple_compact_marketdata()
+        return data
+
+    def subscribe_multiple_snapquote_data(self, snapquotedata_payload):
+        subscription_pkt = []
+        for payload in snapquotedata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            subscription_pkt.append(pkt)
+        th_snapquotetdata = Thread(target=send_message, args=('SnapquoteDataMessage', subscription_pkt))
+        th_snapquotetdata.start()
+
+    def unsubscribe_multiple_snapquote_data(self, snapquotedata_payload):
+        unsubscription_pkt = []
+        for payload in snapquotedata_payload:
+            pkt = [payload['exchangeCode'], payload['instrumentToken']]
+            unsubscription_pkt.append(pkt)
+        th_snapquotetdata = Thread(target=unsubscribe_update, args=('SnapquoteDataMessage', unsubscription_pkt))
+        th_snapquotetdata.start()
+
+    def read_multiple_snapquote_data(self):
+        data = get_multiple_snapquotedata()
         return data
 
 
